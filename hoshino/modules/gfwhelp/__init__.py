@@ -13,6 +13,7 @@ help_message = '''
 [演唱会帮助] 演唱会使用说明
 [演唱会模式] 演唱会模式说明
 [演唱会门票] 演唱会门票说明
+[演唱会地址刷新] 如何刷新演唱会地址
 =====================
 -     v2 演唱会      -
 =====================
@@ -41,4 +42,13 @@ mode_aliases=('演唱会门票')
 async def mode_help(session):
     msg = '演唱会门票十元每月，喜欢的粉丝们可以酌情打赏'
     msg = f'{msg}\n目前支持 {tickets}'
+    await session.send(msg)
+
+dns_aliases=('演唱会地址刷新')
+@sv.on_command('flush-dns', aliases=dns_aliases)
+async def dns_help(session):
+    msg = '在命令行中执行以下命令：'
+    msg = f'{msg}\nwindows: ipconfig /flushdns'
+    msg = f'{msg}\nmac OSX: sudo dscacheutil -flushcache'
+    msg = f'{msg}\n本群已与百度达成合作协议，如果找不到您的系统，可以去百度搜索！'
     await session.send(msg)
