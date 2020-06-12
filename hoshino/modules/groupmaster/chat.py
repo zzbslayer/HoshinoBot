@@ -58,7 +58,18 @@ async def chat_clanba(bot, ctx):
     if random.random() < 0.03:
         await bot.send(ctx, R.img('我的天啊你看看都几度了.jpg').cqcode)
 
+neigui_possibility = 0.20
+neigui = ['内鬼.png', '内鬼-1.jpg', '内鬼-2.jpg']
+cnt = len(neigui)
+neigui_upper_possibility = [neigui_possibility * (i+1) / cnt for i in range(cnt)]
+
 @sv.on_keyword(('内鬼'))
 async def chat_neigui(bot, ctx):
-    if random.random() < 0.10:
-        await bot.send(ctx, R.img('内鬼.png').cqcode)
+    r = random.random()
+    cnt = len(neigui)
+
+    if  r < neigui_possibility:
+        for i in range(cnt):
+            if r < neigui_upper_possibility[i]:
+                await bot.send(ctx, R.img(neigui[i]).cqcode)
+                return
