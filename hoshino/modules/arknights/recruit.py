@@ -136,7 +136,7 @@ async def public_recruit(session):
     tags = args.split()
     size = len(tags)
     if size == 0:
-        session.finish(HELP_MESSAGE)
+        await session.finish(HELP_MESSAGE)
         return
 
     for i in range(size):
@@ -144,14 +144,19 @@ async def public_recruit(session):
             tags[i] = tags[i][:-2]
     valid, _tag = validate_tags(tags)
     if not valid:
-        session.finish(f'无效 TAG：{_tag}')
+        await session.finish(f'无效 TAG：{_tag}')
         return
     workers = get_workers(tags, worker_infos, over4_only)
-    if len(worker_infos) == 0:
+    if len(workers) == 0:
         if over4_only:
-            session.finish('无法保证招聘四星及以上干员\n若希望显示所有可能干员请使用命令：公开招募 -a 位移 近战位')
+            await session.finish(f'无法保证招聘四星及以上干员\n若希望显示所有可能干员请使用命令：公开招募 -a {args}')
         else:
-            session.finish('无匹配干员')
+            await session.finish('无匹配干员')
     else:
         msg = format_workers(workers)
-        session.finish(msg)
+        await session.finish(msg)
+
+@sv.on_command('ark-tags', aliases=('公招TAG', '公招tag'), only_to_me=False)
+async def tags(session):
+    msg = f'公开招募TAG一览：\n{all_tags}'
+    await session.finish(msg)
