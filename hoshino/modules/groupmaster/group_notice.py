@@ -1,6 +1,6 @@
 from nonebot import on_notice, NoticeSession
 from hoshino import util
-
+from hoshino.res import R
 
 @on_notice('group_decrease.leave')
 async def leave_notice(session:NoticeSession):
@@ -16,7 +16,12 @@ async def increace_notice(session:NoticeSession):
     welcome_dic = cfg.get('increase_welcome', {})
     gid = str(session.ctx['group_id'])
     if gid in welcome_dic:
-        await session.send(welcome_dic[gid], at_sender=True)
+        msg_list = welcome_dic[gid]
+        for i in range(len(msg_list)):
+            msg = msg_list[i]
+            if msg[-3:] in ["png", "jpg", "jpeg"]:
+                msg_list[i] = str(R.img(msg).cqcode)
+        await session.send('\n'.join(msg), at_sender=True)
 
 
 @on_notice('group_decrease.kick_me')
