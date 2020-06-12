@@ -8,6 +8,7 @@ p4 = R.img('priconne/quick/r17-3-jp-1.png').cqcode
 p5 = R.img('priconne/quick/r17-3-jp-2.png').cqcode
 p6 = R.img('priconne/quick/r17-3-jp-3.png').cqcode
 p7 = R.img('priconne/quick/r8-3.jpg').cqcode
+p8 = R.img('priconne/quick/r8-5.jpg').cqcode
 
 @sv.on_rex(r'^(\*?([日台国b])服?([前中后]*)卫?)?rank(表|推荐|指南)?$', normalize=True)
 async def rank_sheet(bot, ctx, match):
@@ -36,7 +37,8 @@ async def rank_sheet(bot, ctx, match):
         await bot.send(ctx, '\n'.join(msg), at_sender=True)
         await util.silence(ctx, 60)
     elif is_cn:
-        await bot.send(ctx, '\n※B服当前仅开放至金装，r10前无需考虑卡rank\n※暂未发现公开的靠谱rank推荐表\n※装备强化消耗较多mana，如非前排建议不强化\n※关于卡r的原因可发送"bcr速查"研读【为何卡R卡星】一帖', at_sender=True)
+        await bot.send(ctx, str(p8))
+        # await bot.send(ctx, '\nB服：开服仅开放至金装，r10前无需考虑卡rank\n※装备强化消耗较多mana，如非前排建议不强化\n※唯一值得考量的是当前只开放至r8-3，保持r7满装满强或许会更强\n※关于卡r的原因可发送"bcr速查"研读【为何卡R卡星】一帖', at_sender=True)
         # await bot.send(ctx, str(p7))
         # await util.silence(ctx, 60)
 
@@ -112,3 +114,21 @@ DRAGON_TOOL = f'''
 async def dragon(session:CommandSession):
     await session.send(DRAGON_TOOL, at_sender=True)
     await util.silence(session.ctx, 60)
+
+NORMAL_MAP_PREFIX='刷图指南'
+@sv.on_command('刷图指南', aliases=('刷图', '刷装备', '装备掉落', '刷图攻略'))
+async def normal_map(session:CommandSession):
+    try:
+        number = int(session.current_arg_text)
+    except Exception as e:
+        await session.send('参数必须为数字。示例：`刷图 10`')
+        return
+    img = f'{NORMAL_MAP_PREFIX}-{number}.jpg'
+    img = R.img(f'priconne/quick/{img}')
+    if not img.exist:
+        await session.send(f'{number} 图刷图攻略未找到呜呜呜 ┭┮﹏┭┮')
+    else:
+        await session.send(f'{number} 图刷图攻略：{img.cqcode}')
+
+
+    
