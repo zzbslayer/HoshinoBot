@@ -73,3 +73,8 @@ async def chat_neigui(bot, ctx):
             if r < neigui_upper_possibility[i]:
                 await bot.send(ctx, R.img(neigui[i]).cqcode)
                 return
+
+@sv.on_keyword(('非酋', '非洲', '脸黑'))
+async def africa(bot, ctx):
+    if random.random() < 0.05:
+        await bot.send(ctx, R.img('非酋.png').cqcode)
