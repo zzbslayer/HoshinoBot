@@ -52,7 +52,7 @@ class BaseSpider(abc.ABC):
 
     @classmethod
     def format_items(cls, items) -> str:
-        return f'{cls.src_name}新闻\n' + '\n'.join(map(lambda i: i.content, items))
+        return f'{cls.src_name}\n' + '\n'.join(map(lambda i: i.content, items))
 
 
 
@@ -69,18 +69,36 @@ class SonetSpider(BaseSpider):
             ) for dd in soup.find_all("dd")
         ]
 
+NEWS_TYPE={
+    "ANNOUCEMENT": 1,
+    "NEWS": 2,
+    "EVENT": 4,
+    "NOTE": 6,
+    "ALL": None
+}
 
+bili_url = lambda news_type: f"http://api.biligame.com/news/list?gameExtensionId=267&positionId=2&pageNum=1&pageSize=5&typeId={news_type}"
+bili_detail_url = lambda id : f"http://game.bilibili.com/pcr/news.html#news_detail_id={id}"
 
-class BiliSpider(BaseSpider):
-    url = "https://api.biligame.com/news/list?gameExtensionId=267&positionId=2&typeId=&pageNum=1&pageSize=5"
-    src_name = "B服官网"
-
+class AbstractBiliSpider(BaseSpider):
     @staticmethod
     async def get_items(resp:aiorequests.AsyncResponse):
         content = await resp.json()
         items = [
             Item(idx=n["id"],
-                 content="{title}\n▲game.bilibili.com/pcr/news.html#detail={id}".format_map(n)
+                 content="{title}\n▲game.bilibili.com/pcr/news.html#news_detail_id={id}".format_map(n)
             ) for n in content["data"]
         ]
         return items
+
+class BiliAllSpider(AbstractBiliSpider):
+    url = bili_url(NEWS_TYPE["ALL"])
+    src_name = "国服新闻一览"
+
+class BiliNoteSpider(AbstractBiliSpider):
+    url = bili_url(NEWS_TYPE["NOTE"])
+    src_name = "本地化笔记"
+
+class BiliEventSpider(AbstractBiliSpider):
+    url = bili_url(NEWS_TYPE["EVENT"])
+    src_name = "国服活动"

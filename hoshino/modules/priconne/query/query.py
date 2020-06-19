@@ -1,5 +1,6 @@
-import itertools
+import itertools, re
 from hoshino import util, R, CommandSession
+from nonebot import permission as perm
 from . import sv
 
 p1 = R.img('priconne/quick/r16-3-tw-0.png').cqcode
@@ -7,8 +8,9 @@ p2 = R.img('priconne/quick/r16-3-tw-1.png').cqcode
 p4 = R.img('priconne/quick/r17-3-jp-1.png').cqcode
 p5 = R.img('priconne/quick/r17-3-jp-2.png').cqcode
 p6 = R.img('priconne/quick/r17-3-jp-3.png').cqcode
-p7 = R.img('priconne/quick/r8-3.jpg').cqcode
-p8 = R.img('priconne/quick/r8-5.jpg').cqcode
+
+cn_default_rank_level = 'r9-3'
+cn_rank = R.img(f'priconne/quick/{cn_default_rank_level}.jpg').cqcode
 
 @sv.on_rex(r'^(\*?([日台国b])服?([前中后]*)卫?)?rank(表|推荐|指南)?$', normalize=True)
 async def rank_sheet(bot, ctx, match):
@@ -16,7 +18,7 @@ async def rank_sheet(bot, ctx, match):
     is_tw = match.group(2) == '台'
     is_cn = match.group(2) == '国' or match.group(2) == 'b'
     if not is_jp and not is_tw and not is_cn:
-        await bot.send(ctx, '\n请问您要查询哪个服务器的rank表？\n*日rank表\n*台rank表\n*B服rank表\n※B服：当前仅开放至金装，r10前无需考虑卡rank，装备强化消耗较多mana，如非前排建议不强化', at_sender=True)
+        await bot.send(ctx, '\n请问您要查询哪个服务器的rank表？\n*日rank表\n*台rank表\n*B服rank表\n', at_sender=True)
         return
     msg = [
         '\n※表格仅供参考，升r有风险，强化需谨慎',
@@ -37,11 +39,20 @@ async def rank_sheet(bot, ctx, match):
         await bot.send(ctx, '\n'.join(msg), at_sender=True)
         await util.silence(ctx, 60)
     elif is_cn:
-        await bot.send(ctx, str(p8))
-        # await bot.send(ctx, '\nB服：开服仅开放至金装，r10前无需考虑卡rank\n※装备强化消耗较多mana，如非前排建议不强化\n※唯一值得考量的是当前只开放至r8-3，保持r7满装满强或许会更强\n※关于卡r的原因可发送"bcr速查"研读【为何卡R卡星】一帖', at_sender=True)
-        # await bot.send(ctx, str(p7))
-        # await util.silence(ctx, 60)
+        await bot.send(ctx, str(cn_rank))
 
+rank_pattern = r'^r[1-2]?[0-9]-[1-6]'
+@sv.on_command('cn-rank-update', aliases=('国服rank更新', '国服RANK更新'), permission=perm.SUPERUSER, only_to_me=False)
+async def rank_update(session):
+    print(session.current_arg_text)
+    args = session.current_arg_text.strip()
+    rank = args[0]
+    if re.match(rank_pattern, rank) == None:
+        await session.send('※rank名称不符合规则\n※示例:r9-3')
+        return
+    global cn_rank
+    cn_rank = R.img(f'priconne/quick/{rank}.jpg').cqcode
+    await session.send(f'成功将rank更新为{rank}')
 
 @sv.on_command('arena-database', aliases=('jjc', 'JJC', 'JJC作业', 'JJC作业网', 'JJC数据库', 'jjc作业', 'jjc作业网', 'jjc数据库', 'JJC作業', 'JJC作業網', 'JJC數據庫', 'jjc作業', 'jjc作業網', 'jjc數據庫'), only_to_me=False)
 async def say_arina_database(session):

@@ -122,7 +122,7 @@ async def get_last_5_weibo(session):
             return
     session.finish(f"未找到微博: {alias}")
 
-@sv.scheduled_job('interval', seconds=20*60)
+@sv.scheduled_job('cron', minute='*/10', jitter=20)
 async def weibo_poller():
     for sv_name, serviceObj in subr_dic.items():
         weibos = []
@@ -140,7 +140,7 @@ async def weibo_poller():
             weibos.extend(formatted_weibos)
         await ssv.broadcast(weibos, ssv.name, 0.5)
 
-@sv.scheduled_job('interval', seconds=60*60*24)
+@sv.scheduled_job('cron', second='0', minute='0', hour='5')
 async def clear_spider_buffer():
     sv.logger.info("Clearing weibo spider buffer...")
     for sv_name, serviceObj in subr_dic.items():
