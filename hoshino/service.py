@@ -15,13 +15,10 @@ except:
     import json
 
 import nonebot
-from nonebot import NoneBot, CommandSession
+from nonebot import NoneBot, CommandSession, CQHttpError
 from nonebot.command import _FinishException, _PauseException, SwitchException
 
 from hoshino import util, logger
-
-
-
 
 class Privilege:
     """The privilege of user discribed in an `int` number.
@@ -404,6 +401,27 @@ class Service:
             except Exception as e:
                 self.logger.exception(e)
                 self.logger.error(f"群{gid} 投递{TAG}失败 {type(e)}")
+
+    async def admin_broadcast(self, session, msgs, TAG='', interval_time=0.5, randomiser=None):
+        bot = self.bot
+        if isinstance(msgs, str):
+            msgs = (msgs, )
+        glist = await self.get_enable_groups()
+        for gid, selfids in glist.items():
+            try:
+                for msg in msgs:
+                    await asyncio.sleep(interval_time)
+                    msg = randomiser(msg) if randomiser else msg
+                    await bot.send_group_msg(self_id=random.choice(selfids), group_id=gid, message=msg)
+                if l := len(msgs):
+                    self.logger.info(f"群{gid} 投递{TAG}成功 共{l}条消息")
+            except Exception as e:
+                self.logger.exception(e)
+                self.logger.error(f"群{gid} 投递{TAG}失败 {type(e)}")
+                try:
+                    await session.send(f"群{gid} 投递{TAG}失败 {type(e)}")
+                except CQHttpError as e:
+                    logger.critical(f'向广播发起者进行错误回报时发生错误：{type(e)}')
 
 
 __all__ = ('Service', 'Privilege')
