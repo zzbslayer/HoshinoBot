@@ -1,5 +1,5 @@
 from .bilibili import BilibiliSpider
-from hoshino.service import Service, Privilege as Priv
+from hoshino.service import Service, priv as Priv
 from hoshino.res import R
 from hoshino import util
 from .exception import *

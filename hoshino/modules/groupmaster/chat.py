@@ -83,10 +83,11 @@ async def chat_neigui(bot, ctx):
 
 @sv.on_keyword(('非酋', '非洲', '脸黑'))
 async def africa(bot, ctx):
+    cmd = ev.message.extract_plain_text().strip()
     if random.random() < 0.2:
         await bot.send(ctx, R.img('非酋.png').cqcode)
 
-nyb_player = f'''{R.img('newyearburst.jpg').cqcode}
+nyb_player = f'''{R.img('newyearburst.gif').cqcode}
 正在播放：New Year Burst
 ──●━━━━ 1:05/1:30
 ⇆ ㅤ◁ ㅤㅤ❚❚ ㅤㅤ▷ ㅤ↻
@@ -94,5 +95,6 @@ nyb_player = f'''{R.img('newyearburst.jpg').cqcode}
 
 @sv.on_keyword(('春黑', '新黑'))
 async def new_year_burst(bot, ev):
-    if random.random() < 0.02:
+    cmd = ev.message.extract_plain_text().strip()
+    if cmd in ['春黑.gif', '新黑.gif'] or random.random() < 0.02:
         await bot.send(ev, nyb_player)

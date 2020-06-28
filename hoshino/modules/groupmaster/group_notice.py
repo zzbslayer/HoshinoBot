@@ -11,11 +11,10 @@ async def leave_notice(session: NoticeSession):
 
 
 def gen_msg(msg_list):
-    msg_list = welcome_dic[gid]
-        for i in range(len(msg_list)):
-            msg = msg_list[i]
-            if msg[-3:] in ["png", "jpg", "jpeg"]:
-                msg_list[i] = str(R.img(msg).cqcode)
+    for i in range(len(msg_list)):
+        msg = msg_list[i]
+        if msg[-3:] in ["png", "jpg", "jpeg"]:
+            msg_list[i] = str(R.img(msg).cqcode)
     return '\n'.join(msg_list)
 
 @sv2.on_notice('group_increase')

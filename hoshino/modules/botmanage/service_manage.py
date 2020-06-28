@@ -12,12 +12,12 @@ PRIV_TIP = f'群主={priv.OWNER} 群管={priv.ADMIN} 群员={priv.NORMAL} bot维
 async def lssv(session:CommandSession):
     parser = ArgumentParser(session=session)
     parser.add_argument('-a', '--all', action='store_true')
-    parser.add_argument('-h', '--hidden', action='store_true')
+    parser.add_argument('-i', '--invisible', action='store_true')
     parser.add_argument('-g', '--group', type=int, default=0)
     args = parser.parse_args(session.argv)
     
     verbose_all = args.all
-    only_hidden = args.hidden
+    only_hidden = args.invisible
     if session.ctx['user_id'] in session.bot.config.SUPERUSERS:
         gid = args.group or session.ctx.get('group_id')
         if not gid:

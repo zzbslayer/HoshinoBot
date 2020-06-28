@@ -1,7 +1,7 @@
 from hoshino.service import Service
-from hoshino.res import R
+from hoshino import R
 
-svcn = Service('pcr-portion-reminder-cn', enable_on_default=False)
+svcn = Service('pcr-portion-reminder-cn', enable_on_default=False, help_='药水购买小助手（国服）', bundle='pcr订阅')
 #msg = "骑士君记得买经验药水哦~"
 img = R.img('提醒药水小助手.jpg').cqcode
 msg = f'{img}'

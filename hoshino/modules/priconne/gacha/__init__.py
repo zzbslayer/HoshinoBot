@@ -17,7 +17,7 @@ except:
 
 sv_help = '''
 [/十连] 转蛋模拟
-[单抽] 转蛋模拟
+[/单抽] 转蛋模拟
 [/井] 4w5钻！
 [查看卡池] 模拟卡池&出率
 '''.strip()
@@ -44,14 +44,22 @@ def dump_pool_config():
     with open(_pool_config_file, 'w', encoding='utf8') as f:
         json.dump(_group_pool, f, ensure_ascii=False)
 
+def add_prefix(iterable, prefix):
+    return tuple(prefix + a for a in iterable)
 
-gacha_10_aliases = ('抽十连', '十连', '十连！', '十连抽', '来个十连', '来发十连', '来次十连', '抽个十连', '抽发十连', '抽次十连', '十连扭蛋', '扭蛋十连',
+_gacha_10_aliases = ('抽十连', '十连', '十连！', '十连抽', '来个十连', '来发十连', '来次十连', '抽个十连', '抽发十连', '抽次十连', '十连扭蛋', '扭蛋十连',
                     '10连', '10连！', '10连抽', '来个10连', '来发10连', '来次10连', '抽个10连', '抽发10连', '抽次10连', '10连扭蛋', '扭蛋10连',
                     '十連', '十連！', '十連抽', '來個十連', '來發十連', '來次十連', '抽個十連', '抽發十連', '抽次十連', '十連轉蛋', '轉蛋十連',
                     '10連', '10連！', '10連抽', '來個10連', '來發10連', '來次10連', '抽個10連', '抽發10連', '抽次10連', '10連轉蛋', '轉蛋10連')
-gacha_1_aliases = ('单抽', '单抽！', '来发单抽', '来个单抽', '来次单抽', '扭蛋单抽', '单抽扭蛋',
+gacha_10_aliases = add_prefix(_gacha_10_aliases, "/")
+
+_gacha_1_aliases = ('单抽', '单抽！', '来发单抽', '来个单抽', '来次单抽', '扭蛋单抽', '单抽扭蛋',
                    '單抽', '單抽！', '來發單抽', '來個單抽', '來次單抽', '轉蛋單抽', '單抽轉蛋')
-gacha_300_aliases = ('抽一井', '来一井', '来发井', '抽发井', '天井扭蛋', '扭蛋天井', '天井轉蛋', '轉蛋天井')
+gacha_1_aliases = add_prefix(_gacha_1_aliases, "/")
+
+_gacha_300_aliases = ('抽一井', '来一井', '来发井', '抽发井', '天井扭蛋', '扭蛋天井', '天井轉蛋', '轉蛋天井')
+gacha_300_aliases = add_prefix(_gacha_300_aliases, "/")
+
 
 @sv.on_fullmatch(('卡池资讯', '查看卡池', '看看卡池', '康康卡池', '卡池資訊', '看看up', '看看UP'))
 async def gacha_info(bot, ev: CQEvent):
@@ -102,7 +110,7 @@ async def check_tenjo_num(bot, ev: CQEvent):
         await bot.finish(ev, TENJO_EXCEED_NOTICE, at_sender=True)
 
 
-@sv.on_prefix(gacha_1_aliases, only_to_me=True)
+@sv.on_prefix(gacha_1_aliases, only_to_me=False)
 async def gacha_1(bot, ev: CQEvent):
 
     await check_jewel_num(bot, ev)
@@ -121,7 +129,7 @@ async def gacha_1(bot, ev: CQEvent):
     await bot.send(ev, f'素敵な仲間が増えますよ！\n{res}\n{SWITCH_POOL_TIP}', at_sender=True)
 
 
-@sv.on_prefix(gacha_10_aliases, only_to_me=True)
+@sv.on_prefix(gacha_10_aliases, only_to_me=False)
 async def gacha_10(bot, ev: CQEvent):
     SUPER_LUCKY_LINE = 170
 
@@ -155,7 +163,7 @@ async def gacha_10(bot, ev: CQEvent):
     #await silence(ev, silence_time)
 
 
-@sv.on_prefix(gacha_300_aliases, only_to_me=True)
+@sv.on_prefix(gacha_300_aliases, only_to_me=False)
 async def gacha_300(bot, ev: CQEvent):
 
     await check_tenjo_num(bot, ev)
@@ -216,7 +224,7 @@ async def gacha_300(bot, ev: CQEvent):
     msg.append(SWITCH_POOL_TIP)
 
     await bot.send(ev, '\n'.join(msg), at_sender=True)
-    silence_time = (100*up + 50*(up+s3) + 10*s2 + s1) * 1
+    silence_time = ((100*up + 50*(up+s3)) / 3) * 1 #+ 10*s2 + s1) * 1
     await silence(ev, silence_time)
 
 

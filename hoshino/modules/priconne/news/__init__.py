@@ -43,18 +43,18 @@ async def send_news(bot, ev, spider:BaseSpider, max_num=5):
     news = news[:min(max_num, len(news))]
     await bot.send(ev, spider.format_items(news), at_sender=True)
 
-@svtw.on_fullmatch('台服新闻')
-async def send_sonet_news(session):
-    await send_news(session, SonetSpider)
+@svtw.on_fullmatch(('台服新闻'))
+async def send_sonet_news(bot, ev):
+    await send_news(bot, ev, SonetSpider)
 
-@svbl.on_fullmatch('B服新闻', aliases=('b服新闻', '国服新闻'))
-async def send_bili_news(session):
-    await send_news(session, BiliAllSpider)
+@svbl.on_fullmatch(('b服新闻', '国服新闻', 'B服新闻'))
+async def send_bili_news(bot, ev):
+    await send_news(bot, ev, BiliAllSpider)
 
-@svbl.on_fullmatch('本地化笔记', aliases=('b服本地化笔记', 'B服本地化笔记', '国服本地化笔记'))
-async def send_bili_news(session):
-    await send_news(session, BiliNoteSpider)
+@svbl.on_fullmatch(('本地化笔记', 'b服本地化笔记', 'B服本地化笔记', '国服本地化笔记'))
+async def send_bili_news(bot, ev):
+    await send_news(bot, ev, BiliNoteSpider)
 
-@svbl.on_fullmatch('B服活动', aliases=('b服活动', '国服活动'))
-async def send_bili_news(session):
-    await send_news(session, BiliEventSpider)
+@svbl.on_fullmatch(('B服活动', 'b服活动', '国服活动'))
+async def send_bili_news(bot, ev):
+    await send_news(bot, ev, BiliEventSpider)

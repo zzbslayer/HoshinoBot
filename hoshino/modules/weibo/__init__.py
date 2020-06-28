@@ -13,7 +13,9 @@ def _load_config(services_config):
         sv.logger.debug(sv_config)
         service_name = sv_config["service_name"]
         enable_on_default = sv_config.get("enable_on_default", False)
-        
+        help_ = sv_config.get("help_", None)
+        bundle = sv_config.get("bundle", None)
+
         users_config = sv_config["users"]
 
         sv_spider_list = []
@@ -29,7 +31,7 @@ def _load_config(services_config):
                     "user_id":wb_spider.get_user_id()
                     }
         
-        subService = Service(service_name, enable_on_default=enable_on_default)
+        subService = Service(service_name, enable_on_default=enable_on_default, help_=help_, bundle=bundle)
         subr_dic[service_name] = {"service": subService, "spiders": sv_spider_list}
   
 services_config = hoshino.config.weibo.weibos

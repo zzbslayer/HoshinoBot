@@ -19,7 +19,7 @@ async def rank_sheet(bot, ev):
     is_tw = match.group(2) == '台'
     is_cn = match.group(2) in '国陆b'
     if not is_jp and not is_tw and not is_cn:
-        await bot.send(ctx, '\n请问您要查询哪个服务器的rank表？\n*日rank表\n*台rank表\n*B服rank表\n', at_sender=True)
+        await bot.send(ev, '\n请问您要查询哪个服务器的rank表？\n*日rank表\n*台rank表\n*B服rank表\n', at_sender=True)
         return
     msg = [
         '\n※表格仅供参考，升r有风险，强化需谨慎',
@@ -33,26 +33,13 @@ async def rank_sheet(bot, ev):
             msg.append(str(p5))
         if not pos or '后' in pos:
             msg.append(str(p6))
-        await bot.send(ctx, '\n'.join(msg), at_sender=True)
+        await bot.send(ev, '\n'.join(msg), at_sender=True)
     elif is_tw:
         msg.append(str(tw_rank))
-        await bot.send(ctx, '\n'.join(msg), at_sender=True)
+        await bot.send(ev, '\n'.join(msg), at_sender=True)
     elif is_cn:
         msg.append(str(cn_rank))
-        await bot.send(ctx, '\n'.join(msg), at_sender=True)
-
-rank_pattern = r'^r[1-2]?[0-9]-[1-6]'
-@sv.on_command('cn-rank-update', aliases=('国服rank更新', '国服RANK更新'), permission=perm.SUPERUSER, only_to_me=False)
-async def rank_update(session):
-    print(session.current_arg_text)
-    args = session.current_arg_text.strip()
-    rank = args[0]
-    if re.match(rank_pattern, rank) == None:
-        await session.send('※rank名称不符合规则\n※示例:r9-3')
-        return
-    global cn_rank
-    cn_rank = R.img(f'priconne/quick/{rank}.jpg').cqcode
-    await session.send(f'成功将rank更新为{rank}')
+        await bot.send(ev, '\n'.join(msg), at_sender=True)
 
 @sv.on_fullmatch(('jjc', 'JJC', 'JJC作业', 'JJC作业网', 'JJC数据库', 'jjc作业', 'jjc作业网', 'jjc数据库', 'JJC作業', 'JJC作業網', 'JJC數據庫', 'jjc作業', 'jjc作業網', 'jjc數據庫'))
 async def say_arina_database(bot, ev):
@@ -112,8 +99,8 @@ YUKARI_SHEET = f'''
 async def yukari_sheet(bot, ev):
     await bot.send(ev, YUKARI_SHEET, at_sender=True)
 
-NORMAL_MAP_PREFIX='刷图指南'
-@sv.on_command('刷图指南', aliases=('刷图', '刷装备', '装备掉落', '刷图攻略'))
+NORMAL_MAP_PREFIX='刷图'
+@sv.on_command('刷图', aliases=('刷图指南', '刷装备', '装备掉落', '刷图攻略'))
 async def normal_map(session:CommandSession):
     try:
         number = int(session.current_arg_text)
