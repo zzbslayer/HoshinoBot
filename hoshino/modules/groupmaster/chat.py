@@ -39,12 +39,10 @@ async def seina(session):
 @sv.on_command('我有个朋友说他好了', aliases=('我朋友说他好了', ), only_to_me=False)
 async def ddhaole(session):
     await session.send('那个朋友是不是你弟弟？')
-    await util.silence(session.ctx, 30)
 
 @sv.on_command('我好了', only_to_me=False)
 async def nihaole(session):
     await session.send('不许好，憋回去！')
-    await util.silence(session.ctx, 30)
 
 # ============================================ #
 
@@ -58,23 +56,25 @@ async def chat_clanba(bot, ctx):
     if random.random() < 0.03:
         await bot.send(ctx, R.img('我的天啊你看看都几度了.jpg').cqcode)
 
-neigui_possibility = 0.20
+def possibilities(pos, cnt):
+    return [pos * (i+1) / cnt for i in range(cnt)]
+
+ng_pos = 0.20
 neigui = ['内鬼.png', '内鬼-1.jpg', '内鬼-2.jpg']
-cnt = len(neigui)
-neigui_upper_possibility = [neigui_possibility * (i+1) / cnt for i in range(cnt)]
+ng_poses = possibilities(ng_pos, len(neigui))
 
 @sv.on_keyword(('内鬼'))
 async def chat_neigui(bot, ctx):
     r = random.random()
     cnt = len(neigui)
 
-    if  r < neigui_possibility:
+    if  r < ng_pos:
         for i in range(cnt):
-            if r < neigui_upper_possibility[i]:
+            if r < ng_poses[i]:
                 await bot.send(ctx, R.img(neigui[i]).cqcode)
                 return
 
 @sv.on_keyword(('非酋', '非洲', '脸黑'))
 async def africa(bot, ctx):
-    if random.random() < 0.05:
+    if random.random() < 0.2:
         await bot.send(ctx, R.img('非酋.png').cqcode)

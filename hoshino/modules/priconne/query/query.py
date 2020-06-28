@@ -3,14 +3,12 @@ from hoshino import util, R, CommandSession
 from nonebot import permission as perm
 from . import sv
 
-p1 = R.img('priconne/quick/r16-3-tw-0.png').cqcode
-p2 = R.img('priconne/quick/r16-3-tw-1.png').cqcode
+tw_rank = R.img('priconne/quick/r16-4.jpg').cqcode
 p4 = R.img('priconne/quick/r17-3-jp-1.png').cqcode
 p5 = R.img('priconne/quick/r17-3-jp-2.png').cqcode
 p6 = R.img('priconne/quick/r17-3-jp-3.png').cqcode
 
-cn_default_rank_level = 'r9-3'
-cn_rank = R.img(f'priconne/quick/{cn_default_rank_level}.jpg').cqcode
+cn_rank = R.img('priconne/quick/r9-3.jpg').cqcode
 
 @sv.on_rex(r'^(\*?([日台国b])服?([前中后]*)卫?)?rank(表|推荐|指南)?$', normalize=True)
 async def rank_sheet(bot, ctx, match):
@@ -33,13 +31,12 @@ async def rank_sheet(bot, ctx, match):
         if not pos or '后' in pos:
             msg.append(str(p6))
         await bot.send(ctx, '\n'.join(msg), at_sender=True)
-        await util.silence(ctx, 60)
     elif is_tw:
-        msg.append(f'※不定期搬运自漪夢奈特\n※油管有介绍视频及原文档\nR16-3 rank表：\n{p1}{p2}')
+        msg.append(str(tw_rank))
         await bot.send(ctx, '\n'.join(msg), at_sender=True)
-        await util.silence(ctx, 60)
     elif is_cn:
-        await bot.send(ctx, str(cn_rank))
+        msg.append(str(cn_rank))
+        await bot.send(ctx, '\n'.join(msg), at_sender=True)
 
 rank_pattern = r'^r[1-2]?[0-9]-[1-6]'
 @sv.on_command('cn-rank-update', aliases=('国服rank更新', '国服RANK更新'), permission=perm.SUPERUSER, only_to_me=False)
@@ -95,11 +92,9 @@ BCR_SITES = f'''
 @sv.on_command('pcr-sites', aliases=('pcr速查', 'pcr图书馆', 'pcr圖書館', '图书馆', '圖書館'))
 async def pcr_sites(session:CommandSession):
     await session.send(PCR_SITES, at_sender=True)
-    await util.silence(session.ctx, 60)
 @sv.on_command('bcr-sites', aliases=('bcr速查', 'bcr攻略'))
 async def bcr_sites(session:CommandSession):
     await session.send(BCR_SITES, at_sender=True)
-    await util.silence(session.ctx, 60)
 
 
 YUKARI_SHEET_ALIAS = map(lambda x: ''.join(x), itertools.product(('黄骑', '酒鬼', '黃騎'), ('充电', '充电表', '充能', '充能表')))
@@ -113,7 +108,6 @@ YUKARI_SHEET = f'''
 @sv.on_command('yukari-sheet', aliases=YUKARI_SHEET_ALIAS)
 async def yukari_sheet(session:CommandSession):
     await session.send(YUKARI_SHEET, at_sender=True)
-    await util.silence(session.ctx, 60)
 
 
 DRAGON_TOOL = f'''
@@ -124,7 +118,6 @@ DRAGON_TOOL = f'''
 @sv.on_command('拼音接龙', aliases=('一个顶俩', '韵母接龙'))
 async def dragon(session:CommandSession):
     await session.send(DRAGON_TOOL, at_sender=True)
-    await util.silence(session.ctx, 60)
 
 NORMAL_MAP_PREFIX='刷图指南'
 @sv.on_command('刷图指南', aliases=('刷图', '刷装备', '装备掉落', '刷图攻略'))
