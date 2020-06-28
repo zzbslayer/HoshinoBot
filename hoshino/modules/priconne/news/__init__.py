@@ -2,8 +2,8 @@ import asyncio
 from hoshino import Service
 from .spider import *
 
-svtw = Service('pcr-news-tw')
-svbl = Service('pcr-news-bili')
+svtw = Service('pcr-news-tw', bundle='pcr订阅', help_='台服官网新闻')
+svbl = Service('pcr-news-bili', bundle='pcr订阅', help_='B服官网新闻')
 
 async def news_poller(spider:BaseSpider, sv:Service, TAG):
     if not spider.item_cache:
@@ -36,25 +36,25 @@ async def bili_news_poller():
     
 
 
-async def send_news(session, spider:BaseSpider, max_num=5):
+async def send_news(bot, ev, spider:BaseSpider, max_num=5):
     if not spider.item_cache:
         await spider.get_update()
     news = spider.item_cache
     news = news[:min(max_num, len(news))]
-    await session.send(spider.format_items(news), at_sender=True)
+    await bot.send(ev, spider.format_items(news), at_sender=True)
 
-@svtw.on_command('台服新闻')
+@svtw.on_fullmatch('台服新闻')
 async def send_sonet_news(session):
     await send_news(session, SonetSpider)
 
-@svbl.on_command('B服新闻', aliases=('b服新闻', '国服新闻'))
+@svbl.on_fullmatch('B服新闻', aliases=('b服新闻', '国服新闻'))
 async def send_bili_news(session):
     await send_news(session, BiliAllSpider)
 
-@svbl.on_command('本地化笔记', aliases=('b服本地化笔记', 'B服本地化笔记', '国服本地化笔记'))
+@svbl.on_fullmatch('本地化笔记', aliases=('b服本地化笔记', 'B服本地化笔记', '国服本地化笔记'))
 async def send_bili_news(session):
     await send_news(session, BiliNoteSpider)
 
-@svbl.on_command('B服活动', aliases=('b服活动', '国服活动'))
+@svbl.on_fullmatch('B服活动', aliases=('b服活动', '国服活动'))
 async def send_bili_news(session):
     await send_news(session, BiliEventSpider)

@@ -1,32 +1,35 @@
-from nonebot import on_notice, NoticeSession
-from hoshino import util
-from hoshino.res import R
+import hoshino
+from hoshino import R, util, Service
+from hoshino.typing import NoticeSession
 
-@on_notice('group_decrease.leave')
-async def leave_notice(session:NoticeSession):
-    cfg = util.load_config(__file__)
-    no_leave_notice_group = cfg.get('no_leave_notice', [])
-    if session.ctx['group_id'] not in no_leave_notice_group:
-        await session.send(f"{session.ctx['user_id']}退群了。")
+sv1 = Service('group-leave-notice')
+sv2 = Service('group-welcome')
+
+@sv1.on_notice('group_decrease.leave')
+async def leave_notice(session: NoticeSession):
+    await session.send(f"{session.ctx['user_id']}退群了。")
 
 
-@on_notice('group_increase')
-async def increace_notice(session:NoticeSession):
-    cfg = util.load_config(__file__)
-    welcome_dic = cfg.get('increase_welcome', {})
-    gid = str(session.ctx['group_id'])
-    if gid in welcome_dic:
-        msg_list = welcome_dic[gid]
+def gen_msg(msg_list):
+    msg_list = welcome_dic[gid]
         for i in range(len(msg_list)):
             msg = msg_list[i]
             if msg[-3:] in ["png", "jpg", "jpeg"]:
                 msg_list[i] = str(R.img(msg).cqcode)
-        await session.send('\n'.join(msg), at_sender=True)
+    return '\n'.join(msg_list)
 
-
-@on_notice('group_decrease.kick_me')
-async def kick_me_alert(session:NoticeSession):
-    group_id = session.event.group_id
-    operator_id = session.event.operator_id
-    coffee = session.bot.config.SUPERUSERS[0]
-    await session.bot.send_private_msg(self_id=session.event.self_id, user_id=coffee, message=f'被Q{operator_id}踢出群{group_id}')
+@sv2.on_notice('group_increase')
+async def increace_welcome(session: NoticeSession):
+    
+    if session.event.user_id == session.event.self_id:
+        return  # ignore myself
+    
+    welcomes = hoshino.config.groupmaster.increase_welcome
+    gid = session.event.group_id
+    if gid in welcomes:
+        msg_list = welcomes[gid]
+        await session.send(gen_msg(msg_list), at_sender=True)
+    elif 'default' in welcomes:
+        msg_list = welcomes['default']
+        await session.send(gen_msg(msg_list), at_sender=True)
+        

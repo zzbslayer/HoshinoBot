@@ -1,18 +1,14 @@
-from hoshino import Service, Privilege as Priv
+from hoshino import Service, priv
+from hoshino.typing import CQEvent
 
-sv = Service('_help_', manage_priv=Priv.SUPERUSER, visible=False)
+sv = Service('_help_', manage_priv=priv.SUPERUSER, visible=False)
 
-MANUAL = '''
+TOP_MANUAL = '''
 =====================
 - HoshinoBot使用说明 -
 =====================
-输入方括号[]内的关键词即可触发相应的功能
-※注意其中的【空格】不可省略！
-※部分功能必须手动at本bot才会触发(复制无效)
-※本bot的功能采取模块化管理，群管理可控制开关
-※※调教时请注意使用频率，您的滥用可能会导致bot账号被封禁
-===从此开始↓一行距===
-
+发送方括号[]内的关键词即可触发
+※功能采取模块化管理，群管理可控制开关
 ==================
 - 公主连接Re:Dive -
 ==================
@@ -67,17 +63,54 @@ MANUAL = '''
 =================
 [翻译 もう一度、キミとつながる物語] 机器翻译
 [lssv] 查看功能模块的开关状态
+=======
+[!帮助] 会战管理功能说明
+[怎么拆日和] 竞技场查询
+[星乃来发十连] 转蛋模拟
+[pcr速查] 常用网址
+[官漫132] 四格漫画（日）
+[切噜一下] 切噜语转换
+[lssv] 查看功能模块的开关状态（群管理限定）
+[来杯咖啡] 联系维护组
 
+发送以下关键词查看更多：
+[帮助pcr查询]
+[帮助pcr娱乐]
+[帮助pcr订阅]
+[帮助kancolle]
+[帮助通用]
 ========
-※除帮助中写明外 另有其他隐藏功能:)
-※服务器运行需要成本，赞助支持请私戳作者
+※除这里中写明外 另有其他隐藏功能:)
+※隐藏功能属于赠品 不保证可用性
 ※本bot开源，可自行搭建
+※服务器运行及开发维护需要成本，赞助支持请私戳作者
 ※您的支持是本bot更新维护的动力
-
-※※初次使用请仔细阅读帮助开头的注意事项
 ※※调教时请注意使用频率，您的滥用可能会导致bot账号被封禁
 '''.strip()
 
-@sv.on_command('help', aliases=('manual', '帮助', '说明', '使用说明', '幫助', '說明', '使用說明', '菜单', '菜單'), only_to_me=False)
-async def send_help(session):
-    await session.send(MANUAL)
+# @sv.on_fullmatch(('help', 'manual', '帮助', '说明', '使用说明', '幫助', '說明', '使用說明', '菜单', '菜單'))
+# async def send_help(bot, ev: CQEvent):
+#     await bot.send(ev, MANUAL)
+
+
+def gen_bundle_manual(bundle_name, service_list, gid):
+    manual = [bundle_name]
+    service_list = sorted(service_list, key=lambda s: s.name)
+    for sv in service_list:
+        if sv.visible:
+            spit_line = '=' * max(0, 18 - len(sv.name))
+            manual.append(f"|{'o' if sv.check_enabled(gid) else 'x'}| {sv.name} {spit_line}")
+            if sv.help:
+                manual.append(sv.help)
+    return '\n'.join(manual)
+
+
+@sv.on_prefix(('help', '帮助', '幫助'))
+async def send_help(bot, ev: CQEvent):
+    bundle_name = ev.message.extract_plain_text().strip()
+    bundles = Service.get_bundles()
+    if bundle_name in bundles:
+        msg = gen_bundle_manual(bundle_name, bundles[bundle_name], ev.group_id)
+    else:
+        msg = TOP_MANUAL
+    await bot.send(ev, msg)

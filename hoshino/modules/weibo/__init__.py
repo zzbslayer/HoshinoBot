@@ -1,25 +1,12 @@
 from .weibo import WeiboSpider
-from hoshino.service import Service, Privilege as Priv
-from hoshino.res import R
-from hoshino import util
+import hoshino
+from hoshino.service import Service
+from hoshino import priv as Priv
+from hoshino import R, util
 from .exception import *
 
-'''
-sample config.json
-
-[{
-    "service_name": "weibo-bcr",
-    "enable_on_default": true,
-    "users":[{
-        "user_id": "6603867494",
-        "alias": ["公主连接", "公主连结", "公主链接"],
-        "filter": true
-    }]
-    
-}]
-'''
-
 lmt = util.FreqLimiter(5)
+sv = Service('weibo-poller', manage_priv=Priv.SUPERUSER, visible=False)
 
 def _load_config(services_config):
     for sv_config in services_config:
@@ -44,11 +31,8 @@ def _load_config(services_config):
         
         subService = Service(service_name, enable_on_default=enable_on_default)
         subr_dic[service_name] = {"service": subService, "spiders": sv_spider_list}
-
-        
-        
-sv = Service('weibo-poller', manage_priv=Priv.SUPERUSER, visible=False)
-services_config = util.load_config(__file__)
+  
+services_config = hoshino.config.weibo.weibos
 subr_dic = {}
 alias_dic = {}
 _load_config(services_config)
