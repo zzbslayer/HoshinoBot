@@ -53,15 +53,16 @@ async def nihaole(bot, ev):
 
 
 @sv.on_keyword(('确实', '有一说一', 'u1s1', 'yysy'))
-async def chat_queshi(bot, ctx):
-    if random.random() < 0.05:
-        await bot.send(ctx, R.img('确实.jpg').cqcode)
+async def chat_queshi(bot, ev):
+    cmd = ev.message.extract_plain_text().strip()
+    if  cmd in ['确实.jpg'] or random.random() < 0.05:
+        await bot.send(ev, R.img('确实.jpg').cqcode)
 
 
 @sv.on_keyword(('会战'))
-async def chat_clanba(bot, ctx):
+async def chat_clanba(bot, ev):
     if random.random() < 0.02:
-        await bot.send(ctx, R.img('我的天啊你看看都几度了.jpg').cqcode)
+        await bot.send(ev, R.img('我的天啊你看看都几度了.jpg').cqcode)
 
 def possibilities(pos, cnt):
     return [pos * (i+1) / cnt for i in range(cnt)]
@@ -71,21 +72,30 @@ neigui = ['内鬼.png', '内鬼-1.jpg', '内鬼-2.jpg']
 ng_poses = possibilities(ng_pos, len(neigui))
 
 @sv.on_keyword(('内鬼'))
-async def chat_neigui(bot, ctx):
+async def chat_neigui(bot, ev):
+    cmd = ev.message.extract_plain_text().strip()
     r = random.random()
     cnt = len(neigui)
 
-    if  r < ng_pos:
+    if  cmd in ['内鬼.jpg'] or r < ng_pos:
         for i in range(cnt):
             if r < ng_poses[i]:
-                await bot.send(ctx, R.img(neigui[i]).cqcode)
+                await bot.send(ev, R.img(neigui[i]).cqcode)
                 return
 
+africa_pos = 0.05
+african = ['非洲人.png','非洲人2.png']
+africa_poses = possibilities(africa_pos, len(african))
 @sv.on_keyword(('非酋', '非洲', '脸黑'))
-async def africa(bot, ctx):
+async def africa(bot, ev):
     cmd = ev.message.extract_plain_text().strip()
-    if random.random() < 0.2:
-        await bot.send(ctx, R.img('非酋.png').cqcode)
+    r = random.random()
+    cnt = len(african)
+    if  cmd in ['非酋.jpg', '非洲人.jpg'] or r < africa_pos:
+        for i in range(cnt):
+            if r < africa_poses[i]:
+                await bot.send(ev, R.img(african[i]).cqcode)
+                return
 
 nyb_player = f'''{R.img('newyearburst.gif').cqcode}
 正在播放：New Year Burst
@@ -98,3 +108,9 @@ async def new_year_burst(bot, ev):
     cmd = ev.message.extract_plain_text().strip()
     if cmd in ['春黑.gif', '新黑.gif'] or random.random() < 0.02:
         await bot.send(ev, nyb_player)
+
+@sv.on_keyword(('ue对不起', '优衣对不起'))
+async def new_year_burst(bot, ev):
+    cmd = ev.message.extract_plain_text().strip()
+    if cmd in ['ue对不起.jpg', '优衣对不起.jpg'] or random.random() < 0.02:
+        await bot.send(ev, R.img('ue_sorry.jpg').cqcode)
