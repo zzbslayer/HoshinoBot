@@ -23,6 +23,8 @@ PRC_HELP = '''
 [/十连] 十连转蛋模拟
 [/单抽] 单抽转蛋模拟
 [/井] 4w5钻！买定离手！
+[查看卡池] 模拟卡池&出率
+[切换卡池] 更换模拟卡池
 [@bot 妈] 给主さま盖章章
 [查看卡池] 查看bot现在的卡池及出率
 [怎么拆 妹弓] 后以空格隔开接角色名，查询竞技场解法
@@ -66,7 +68,7 @@ NORMAL_HELP='''
 ===========
 [切噜一下] 后以空格隔开接想要转换为切噜语的话
 [切噜～♪切啰巴切拉切蹦切蹦] 切噜语翻译
-[启用/禁用 antiqks] 自动检测骑空士的陷阱
+[启用/禁用 antiqks] 识破骑空士的阴谋
 [启用/禁用 bangumi] 开启番剧更新推送
 [@bot 来点新番] 查看最近的更新(↑需先开启番剧更新推送↑)
 [.r] 掷骰子
@@ -141,11 +143,6 @@ async def send_help(bot, ev: CQEvent):
         await bot.send(ev, TOP_MANUAL)
     elif bundle_name in bundles:
         msg = gen_bundle_manual(bundle_name, bundles[bundle_name], ev.group_id)
-<<<<<<< HEAD
     else:
         msg = SHORT_HELP
     await bot.send(ev, msg)
-=======
-        await bot.send(ev, msg)
-    # else: ignore
->>>>>>> c42903b7b73986f0d63c324f6a0e6aeea1230ffe

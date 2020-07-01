@@ -23,7 +23,7 @@ async def chat_waifu(bot, ev):
     if not priv.check_priv(ev, priv.SUPERUSER):
         await bot.send(ev, R.img('laopo.jpg').cqcode)
     else:
-        await bot.send(ev, R.record('谢谢.m4a').cqcode)
+        await bot.send(ev, R.record('要不行了.m4a').cqcode)
         await bot.send(ev, 'mua~')
 
 

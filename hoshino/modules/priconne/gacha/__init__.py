@@ -136,7 +136,7 @@ async def gacha_1(bot, ev: CQEvent):
         res = f'{chara.icon.cqcode} {res}'
     if chara.star == 3:
         await silence(ev, 60)
-    await bot.send(ev, f'素敵な仲間が増えますよ！\n{res}\n{SWITCH_POOL_TIP}', at_sender=True)
+    await bot.send(ev, f'素敵な仲間が増えますよ！\n{res}', at_sender=True)
 
 
 @sv.on_prefix(gacha_10_aliases, only_to_me=False)
@@ -169,7 +169,7 @@ async def gacha_10(bot, ev: CQEvent):
 
     if hiishi >= SUPER_LUCKY_LINE:
         await bot.send(ev, '恭喜海豹！おめでとうございます！')
-    await bot.send(ev, f'素敵な仲間が増えますよ！\n{res}\n{SWITCH_POOL_TIP}', at_sender=True)
+    await bot.send(ev, f'素敵な仲間が増えますよ！\n{res}', at_sender=True)
     #await silence(ev, silence_time)
 
 
@@ -242,8 +242,6 @@ async def gacha_300(bot, ev: CQEvent):
     elif up >= 4:
         msg.append("记忆碎片一大堆！您是托吧？")
     
-    msg.append(SWITCH_POOL_TIP)
-
     await bot.send(ev, '\n'.join(msg), at_sender=True)
     silence_time = ((100*up + 50*(up+s3)) / 3) * 1 #+ 10*s2 + s1) * 1
     if silence_time >= 5 * 60:
