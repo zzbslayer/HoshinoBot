@@ -676,6 +676,7 @@ async def stat_damage(bot:NoneBot, ctx:Context_T, args:ParseResult):
         return
 
     stat.sort(key=lambda x: x[3][0], reverse=True)
+    total = [ s[3][0] for s in stat ]
     name = [ s[2] for s in stat ]
     y_pos = list(range(yn))
     y_size = 0.3 * yn + 1.0
@@ -712,6 +713,8 @@ async def stat_damage(bot:NoneBot, ctx:Context_T, args:ParseResult):
             d = pre_sum_dmg[b][i] - pre_sum_dmg[b - 1][i]
             if d > unit:
                 ax.text(x, y, f'{d/unit:.0f}{unit_str}', ha='center', va='center')
+            if b == 5:
+                ax.text(rect.get_width() + 10, y, f'{total[i]/unit:.0f}{unit_str}', ha='left', va='center')
     plt.subplots_adjust(left=0.12, right=0.96, top=1 - 0.35 / y_size, bottom=0.55 / y_size)
     pic = util.fig2b64(plt)
     plt.close()
