@@ -12,6 +12,7 @@ HELP_HEADER='''
 ※功能采取模块化管理，群管理可控制开关
 '''.strip()
 HELP_BOTTOM='''
+※※该bot是基于HoshinoBot开发的分支版本KokkoroBot
 ※※调教时请注意使用频率，您的滥用可能会导致bot账号被封禁
 '''.strip()
 

@@ -1,16 +1,14 @@
-# HoshinoBot
-
-A qqbot for Princess Connect Re:Dive (and other usage :)
+# KokkoroBot
+QQ bot for Princess Connect Re:Dive, Arknights
 
 
 ## 简介
 
-**HoshinoBot:** 基于 [nonebot](http://nonebot.cqp.moe) 框架，开源、无公害、非转基因的QQ机器人。
-
+**KokkoroBot:** 基于 [HoshinoBot](https://github.com/Ice-Cirno/HoshinoBot) 项目的分支版本
+在 HoshinoBot 已有功能之上添加了语音消息、明日方舟等部分功能，并进行了一定程度上的魔改。
 
 
 ## 功能介绍
-
 HoshinoBot 的功能开发以服务 [公主连结☆Re:Dive](http://priconne-redive.jp) 玩家为核心，主要功能有：
 
 - **转蛋模拟**：单抽、十连、抽一井

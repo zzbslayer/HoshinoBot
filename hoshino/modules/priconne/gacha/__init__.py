@@ -58,9 +58,18 @@ _gacha_1_aliases = ('单抽', '单抽！', '来发单抽', '来个单抽', '来�
                    '單抽', '單抽！', '來發單抽', '來個單抽', '來次單抽', '轉蛋單抽', '單抽轉蛋')
 gacha_1_aliases = add_prefix(_gacha_1_aliases, "/")
 
-_gacha_300_aliases = ('抽一井', '来一井', '来发井', '抽发井', '天井扭蛋', '扭蛋天井', '天井轉蛋', '轉蛋天井')
+_gacha_300_aliases = ('井', '抽一井', '来一井', '来发井', '抽发井', '天井扭蛋', '扭蛋天井', '天井轉蛋', '轉蛋天井')
 gacha_300_aliases = add_prefix(_gacha_300_aliases, "/")
 
+
+async def congratulation_records(bot, ev:CQEvent):
+    num = random.randint(1, 2)
+    await bot.send(ev, R.record(f'主人大胜利{num}.m4a').cqcode)
+
+async def comfort_records(bot, ev:CQEvent):
+    records = ['不管什么惩罚都可以.m4a', '主人大人对不起呜呜呜.m4a', '对不起主人大人.m4a', '我真是个笨蛋.m4a']
+    num = random.randint(0, len(records)-1)
+    await bot.send(ev, R.record(records[num]))
 
 @sv.on_fullmatch(('卡池资讯', '查看卡池', '看看卡池', '康康卡池', '卡池資訊', '看看up', '看看UP'))
 async def gacha_info(bot, ev: CQEvent):
@@ -199,10 +208,16 @@ async def gacha_300(bot, ev: CQEvent):
         f"获得记忆碎片×{100*up}与女神秘石×{50*(up+s3) + 10*s2 + s1}！\n第{result['first_up_pos']}抽首次获得up角色" if up else f"获得女神秘石{50*(up+s3) + 10*s2 + s1}个！"
     ]
 
-    if bot.config.USE_CQPRO and up == 0 and s3 <= 3:
-        num = random.randint(1, 2)
-        await bot.send(ev, R.record(f'主人大胜利{num}.m4a'))
+    if bot.config.USE_CQPRO:
+        if up == 0 and s3 <= 3:
+            if not priv.check_priv(ev, priv.SUPERUSER):
+                await congratulation_records(bot, ev)
+            else:
+                await comfort_records(bot, ev)
+        elif up >= 10 or s3+up >= 20:
+            await congratulation_records(bot, ev)
     
+
     if up == 0 and s3 == 0:
         msg.append("太惨了，咱们还是退款删游吧...")
     elif up == 0 and s3 > 7:
@@ -226,11 +241,13 @@ async def gacha_300(bot, ev: CQEvent):
         msg.append("抽井母五一气呵成！多出30等专武～")
     elif up >= 4:
         msg.append("记忆碎片一大堆！您是托吧？")
+    
     msg.append(SWITCH_POOL_TIP)
 
     await bot.send(ev, '\n'.join(msg), at_sender=True)
     silence_time = ((100*up + 50*(up+s3)) / 3) * 1 #+ 10*s2 + s1) * 1
-    await silence(ev, silence_time)
+    if silence_time >= 5 * 60:
+        await silence(ev, silence_time)
 
 
 @sv.on_prefix('氪金')

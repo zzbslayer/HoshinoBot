@@ -93,6 +93,8 @@ async def chat_neigui(bot, ev):
             if r < ng_poses[i]:
                 img = neigui[i]
                 break
+    else:
+        return
     await bot.send(ev, R.img(img).cqcode)
 
 _africa = ['非酋', '非洲', '脸黑', '非洲人']
@@ -112,7 +114,8 @@ async def africa(bot, ev):
             if r < africa_poses[i]:
                 img = african[i]
                 break
-                
+    else:
+        return
     await bot.send(ev, R.img(img).cqcode)
 
 nyb_player = f'''{R.img('newyearburst.gif').cqcode}

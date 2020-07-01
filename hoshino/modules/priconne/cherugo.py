@@ -8,12 +8,12 @@
     切噜语由切噜词与标点符号连接而成
 """
 
-import re
+import re, random
 from itertools import zip_longest
 
 from nonebot.message import escape
 
-from hoshino import Service
+from hoshino import Service, R
 from hoshino.typing import CQEvent
 
 sv = Service('pcr-cherugo', bundle='pcr娱乐', help_='''
@@ -65,6 +65,9 @@ def str2cheru(s: str) -> str:
 def cheru2str(c: str) -> str:
     return rex_cheru_word.sub(lambda w: cheru2word(w.group()), c)
 
+async def cheru_record(bot, ev):
+    num = random.randint(1, 6)
+    await bot.send(ev, R.record(f'切噜{num}.m4a').cqcode)
 
 @sv.on_prefix('切噜一下')
 async def cherulize(bot, ev: CQEvent):
@@ -72,6 +75,8 @@ async def cherulize(bot, ev: CQEvent):
     if len(s) > 500:
         await bot.send(ev, '切、切噜太长切不动勒切噜噜...', at_sender=True)
         return
+    if random.random() < 0.2:
+        await cheru_record(bot, ev)
     await bot.send(ev, '切噜～♪' + str2cheru(s))
 
 
@@ -82,4 +87,6 @@ async def decherulize(bot, ev: CQEvent):
         await bot.send(ev, '切、切噜太长切不动勒切噜噜...', at_sender=True)
         return
     msg = '的切噜噜是：\n' + escape(cheru2str(s))
+    if random.random() < 0.2:
+        await cheru_record(bot, ev)
     await bot.send(ev, msg, at_sender=True)
