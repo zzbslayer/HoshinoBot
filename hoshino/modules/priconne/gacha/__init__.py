@@ -5,6 +5,7 @@ from collections import defaultdict
 from hoshino import Service, priv, util
 from hoshino.typing import *
 from hoshino.util import DailyNumberLimiter, concat_pic, pic2b64, silence
+from hoshino import R
 
 from .. import chara
 from .gacha import Gacha
@@ -198,6 +199,10 @@ async def gacha_300(bot, ev: CQEvent):
         f"获得记忆碎片×{100*up}与女神秘石×{50*(up+s3) + 10*s2 + s1}！\n第{result['first_up_pos']}抽首次获得up角色" if up else f"获得女神秘石{50*(up+s3) + 10*s2 + s1}个！"
     ]
 
+    if bot.config.USE_CQPRO and up == 0 and s3 <= 3:
+        num = random.randint(1, 2)
+        await bot.send(ev, R.record(f'主人大胜利{num}.m4a'))
+    
     if up == 0 and s3 == 0:
         msg.append("太惨了，咱们还是退款删游吧...")
     elif up == 0 and s3 > 7:

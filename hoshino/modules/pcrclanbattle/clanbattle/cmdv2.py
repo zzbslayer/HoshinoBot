@@ -13,6 +13,7 @@ import os
 from datetime import datetime, timedelta
 from typing import List
 from matplotlib import pyplot as plt
+import httpx
 try:
     import ujson as json
 except:
@@ -781,12 +782,16 @@ async def _do_show_remain(bot:NoneBot, ctx:Context_T, args:ParseResult, at_user:
     rlist = bm.list_challenge_remain(1, datetime.now())
     rlist.sort(key=lambda x: x[3] + x[4], reverse=True)
     msg = [ f"\n{clan['name']}今日余刀：" ]
+    sum_remain = 0
     for uid, _, name, r_n, r_e in rlist:
         if r_n or r_e:
             msg.append(f"剩{r_n}刀 补时{r_e}刀 | {ms.at(uid) if at_user else name}")
+            sum_remain += r_n
+    
     if len(msg) == 1:
         await bot.send(ctx, f"今日{clan['name']}所有成员均已下班！各位辛苦了！", at_sender=True)
     else:
+        msg.append(f'共计剩余{sum_remain}刀')
         msg.append('若有负数说明报刀有误 请注意核对\n使用“!出刀记录 @qq”可查看详细记录')
         if at_user:
             msg.append("=========\n在？阿sir喊你出刀啦！")
@@ -824,3 +829,72 @@ async def list_challenge(bot:NoneBot, ctx:Context_T, args:ParseResult):
         c['flag_str'] = '|补时' if flag & bm.EXT else '|尾刀' if flag & bm.LAST else '|掉线' if flag & bm.TIMEOUT else '|通常'
         msg.append(challenstr.format_map(c))
     await bot.send(ctx, '\n'.join(msg))
+
+async def get_cookies(url, **kwargs):
+    async with httpx.AsyncClient() as client:
+        r = await client.get(url, **kwargs)
+        return r.cookies
+
+async def post(url, **kwargs):
+    async with httpx.AsyncClient() as client:
+        r = await client.post(url, **kwargs)
+        return r.json()
+
+RANK_API_NAME = "https://service-kjcbcnmw-1254119946.gz.apigw.tencentcs.com/name/0"
+RANK_API_LEADER = "https://service-kjcbcnmw-1254119946.gz.apigw.tencentcs.com/leader/0"
+@cb_cmd('排名', ArgParser(
+    usage='！排名 C<公会名> L<会长名> 默认查询本群公会。两参数不兼容。',
+    arg_dict={
+        'C':ArgHolder(tip='公会名', type=str, default=''),
+        'L':ArgHolder(tip='会长名', type=str, default='')}))
+async def clan_rank(bot:NoneBot, ctx:Context_T, args:ParseResult):
+    clan_name = args.get('C')
+    leader = args.get('L')
+    url = RANK_API_NAME
+    if clan_name == '' and leader == '':
+        bm = BattleMaster(ctx['group_id'])
+        clan = _check_clan(bm)
+        clan_name = clan['name']
+    elif clan_name == '' and leader != '':
+        url = RANK_API_LEADER
+
+    body = json.dumps({'clanName':clan_name, 'leaderName': leader})
+    headers = {
+        "Sec-Fetch-Site":"cross-site",
+        "Sec-Fetch-Mode":"cors",
+        "Sec-Fetch-Dest":"empty",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "Accept-Encoding": "gzip, deflate", # don't include br
+        "Accept-Language": "zh-Hans-CN, zh-Hans; q=0.8, en-US; q=0.5, en; q=0.3",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Content-Type": "application/json",
+        "Host": "service-kjcbcnmw-1254119946.gz.apigw.tencentcs.com",
+        "Origin": "https://kengxxiao.github.io",
+        "Referer": "https://kengxxiao.github.io/Kyouka/",
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"
+    }
+    
+    try:
+        cookies = await get_cookies("https://kengxxiao.github.io/Kyouka/")
+        cookies.set('fav', '[]', domain='kengxxiao.github.io') # cookies is a must
+        res = await post(url, headers=headers, data=body, cookies=cookies)
+    except Exception as e:
+        print(e)
+        await bot.send(ctx, '查询出错，请稍后再试', at_sender=True)
+        return
+
+    if 'data' not in res:
+        print(body)
+        print(res)
+        await bot.send(ctx, '未找到公会', at_sender=True)
+        return
+    msg = []
+    for data in res['data']:
+        info = f"{data['clan_name']} 目前第{data['rank']}名 总伤害 {data['damage']}"
+        if leader != '':
+            info += f" 会长 {data['leader_name']}"
+        msg.append(info)
+    await bot.send(ctx, '\n'.join(msg), at_sender=True)
+    

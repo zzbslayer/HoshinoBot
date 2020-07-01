@@ -70,6 +70,19 @@ class RemoteResImg(RemoteResObj):
             r = await client.get(self.url)
             return Image.open(BytesIO(r))
 
+class ResRecord(ResObj):
+    @property
+    def cqcode(self) -> MessageSegment:
+        if hoshino.config.RES_PROTOCOL == 'http':
+            return MessageSegment.record(self.url)
+        elif hoshino.config.RES_PROTOCOL == 'file':
+            return MessageSegment.record(f'file:///{os.path.abspath(self.path)}')
+        else:
+            return MessageSegment.text('[语音出错]')
+
+def record(path, *paths):
+    return ResRecord(os.path.join('record', path, *paths))
+
 def get(path, *paths):
     return ResObj(os.path.join(path, *paths))
 
