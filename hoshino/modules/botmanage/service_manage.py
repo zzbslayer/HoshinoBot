@@ -4,7 +4,7 @@ from nonebot import CommandSession, CQHttpError, on_command
 from nonebot import permission as perm
 from nonebot.argparse import ArgumentParser
 
-from hoshino.service import Service, priv
+from hoshino import Service, priv
 
 PRIV_TIP = f'群主={priv.OWNER} 群管={priv.ADMIN} 群员={priv.NORMAL} bot维护组={priv.SUPERUSER}'
 

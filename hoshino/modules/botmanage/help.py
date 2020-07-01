@@ -97,36 +97,13 @@ SHORT_HELP=f'''
 {HELP_BOTTOM}
 '''.strip()
 
-ALL_HELP = f'''
-{HELP_HEADER}
-{PRC_HELP}
-{ARKNIGHTS_HELP}
-{NORMAL_HELP}
-{WEIBO_HELP}
-{ADMIN_HELP}
-=====================
-发送以下关键词按功能分类查看：
-[帮助pcr查询]
-[帮助pcr娱乐]
-[帮助pcr订阅]
-[帮助kancolle]
-[帮助通用]
-===========
-{HELP_BOTTOM}
-'''.strip()
-
-# @sv.on_fullmatch(('help', 'manual', '帮助', '说明', '使用说明', '幫助', '說明', '使用說明', '菜单', '菜單'))
-# async def send_help(bot, ev: CQEvent):
-#     await bot.send(ev, MANUAL)
-
-
 def gen_bundle_manual(bundle_name, service_list, gid):
     manual = [bundle_name]
     service_list = sorted(service_list, key=lambda s: s.name)
     for sv in service_list:
         if sv.visible:
             spit_line = '=' * max(0, 18 - len(sv.name))
-            manual.append(f"|{'o' if sv.check_enabled(gid) else 'x'}| {sv.name} {spit_line}")
+            manual.append(f"|{'○' if sv.check_enabled(gid) else '×'}| {sv.name} {spit_line}")
             if sv.help:
                 manual.append(sv.help)
     return '\n'.join(manual)
@@ -160,8 +137,15 @@ async def weibo_help(bot, ev:CQEvent):
 async def send_help(bot, ev: CQEvent):
     bundle_name = ev.message.extract_plain_text().strip()
     bundles = Service.get_bundles()
-    if bundle_name in bundles:
+    if not bundle_name:
+        await bot.send(ev, TOP_MANUAL)
+    elif bundle_name in bundles:
         msg = gen_bundle_manual(bundle_name, bundles[bundle_name], ev.group_id)
+<<<<<<< HEAD
     else:
         msg = SHORT_HELP
     await bot.send(ev, msg)
+=======
+        await bot.send(ev, msg)
+    # else: ignore
+>>>>>>> c42903b7b73986f0d63c324f6a0e6aeea1230ffe
