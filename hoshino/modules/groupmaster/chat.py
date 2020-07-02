@@ -77,7 +77,7 @@ def possibilities(pos, cnt):
 _neigui = ['内鬼']
 _image_suffix = ['.jpg', '.png']
 ng_pos = 0.20
-neigui = ['内鬼.png', '内鬼-1.jpg', '内鬼-2.jpg']
+neigui = ['内鬼.png', '内鬼-1.jpg', '内鬼-2.jpg', '内鬼-3.png']
 ng_poses = possibilities(ng_pos, len(neigui))
 @sv.on_keyword(tuple(_neigui))
 async def chat_neigui(bot, ev):

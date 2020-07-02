@@ -15,6 +15,9 @@ import PIL
 import requests
 import io
 from hoshino import Service, R
+from hoshino.util import FreqLimiter
+
+lmt = FreqLimiter(5)
 
 BASE_DIR = R.img('temp/gifs/').path
 makedirs(BASE_DIR, exist_ok=True)
@@ -67,9 +70,14 @@ async def reverse(session: CommandSession):
     # 从会话状态中获取图片
     base = session.get('base', prompt='请向机器人发送gif。')
 
+    uid = session.event.user_id
+    if not lmt.check(uid):
+        await session.finish(f'冷却中(剩余 {int(lmt.left_time(uid)) + 1}秒)')
+        return
+    lmt.start_cd(uid, 120)
     # 向用户发送图
     reverted = await reverse_image(base)
-    await session.send(reverted.cqcode)
+    await session.finish(reverted.cqcode)
 
 @reverse.args_parser
 async def _(session: CommandSession):

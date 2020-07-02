@@ -35,7 +35,6 @@ PRC_HELP = '''
 [@bot 官漫132] 官方四格阅览
 [挖矿 15001] 查询矿场中还剩多少钻
 [刷图 10] 查看指定地图刷图攻略
-[！帮助] 查看会战管理功能的说明
 [国服日程表] 查看国服活动日程表
 [国服新闻] 查看国服新闻
 [国服活动] 查看国服活动安排
@@ -43,6 +42,7 @@ PRC_HELP = '''
 [启用/禁用 pcr-arena-reminder-cn] 背刺时间提醒(UTC+8)
 [启用/禁用 pcr-portion-reminder-cn] 提醒买药小助手(UTC+8)
 [启用/禁用 weibo-pcr] 国服官微推送
+[！帮助] 查看会战管理功能的说明
 '''.strip()
 
 ARKNIGHTS_HELP='''
@@ -70,7 +70,9 @@ NORMAL_HELP='''
 [切噜～♪切啰巴切拉切蹦切蹦] 切噜语翻译
 [启用/禁用 antiqks] 识破骑空士的阴谋
 [启用/禁用 bangumi] 开启番剧更新推送
-[@bot 来点新番] 查看最近的更新(↑需先开启番剧更新推送↑)
+[@bot 来点新番] 查看最近的更新(↑需开启番剧更新推送↑)
+[倒放<gif图片>] 倒放gif(需开启gif-reverter)
+[搜无损 关键词] 搜索无损acg音乐
 [.r] 掷骰子
 [.r 3d12] 掷3次12面骰子
 [@bot 精致睡眠] 8小时精致睡眠(bot需具有群管理权限)
@@ -139,9 +141,7 @@ async def weibo_help(bot, ev:CQEvent):
 async def send_help(bot, ev: CQEvent):
     bundle_name = ev.message.extract_plain_text().strip()
     bundles = Service.get_bundles()
-    if not bundle_name:
-        await bot.send(ev, TOP_MANUAL)
-    elif bundle_name in bundles:
+    if bundle_name in bundles:
         msg = gen_bundle_manual(bundle_name, bundles[bundle_name], ev.group_id)
     else:
         msg = SHORT_HELP
