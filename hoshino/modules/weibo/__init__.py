@@ -49,7 +49,7 @@ def wb_to_message(wb):
 
     msg = f'{msg}\n{wb["text"]}'
 
-    if sv.bot.config.IS_CQPRO and len(wb["pics"]) > 0:
+    if sv.bot.config.USE_CQPRO and len(wb["pics"]) > 0:
         images_url = wb["pics"]
         msg = f'{msg}\n'
         res_imgs = [R.remote_img(url).cqcode for url in images_url]
