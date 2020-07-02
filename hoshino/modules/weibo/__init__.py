@@ -63,8 +63,8 @@ def wb_to_message(wb):
     return msg
 
 weibo_url_prefix = "https://weibo.com/u"
-@sv.on_command('weibo-config',aliases=('查看微博服务', '微博服务', '微博配置', '查看微博配置'))
-async def weibo_config(session):
+@sv.on_fullmatch(('weibo-config', '查看微博服务', '微博服务', '微博配置', '查看微博配置'))
+async def weibo_config(bot, ev):
     msg = '微博推送配置：服务名，别名，微博链接'
     index = 1
     for service_config in services_config:
@@ -76,23 +76,21 @@ async def weibo_config(session):
             weibo_url = f'{weibo_url_prefix}/{weibo_id}'
             msg = f'{msg}\n{index}. {service_name}, {alias}, {weibo_url}'
             index+=1
-    session.finish(msg)
+    await bot.send(ev, msg)
 
 
 # @bot 看微博 alias
-@sv.on_command('看微博', only_to_me=True)
-async def get_last_5_weibo(session):
-    uid = session.ctx['user_id']
+@sv.on_prefix('看微博')
+async def get_last_5_weibo(bot, ev):
+    uid = ev.user_id
     if not lmt.check(uid):
-        session.finish('您查询得过于频繁，请稍等片刻', at_sender=True)
-        return
+        await bot.finish(ev, '您查询得过于频繁，请稍等片刻', at_sender=True)
 
     lmt.start_cd(uid)
 
-    alias = session.current_arg_text
+    alias = ev.message.extract_plain_text().strip()
     if alias not in alias_dic:
-        session.finish(f"未找到微博: {alias}")
-        return
+        await bot.finish(ev, f"未找到微博: {alias}")
 
     service_name = alias_dic[alias]["service_name"]
     user_id = alias_dic[alias]["user_id"]
@@ -103,10 +101,9 @@ async def get_last_5_weibo(session):
             last_5_weibos = spider.get_last_5_weibos()
             formatted_weibos = [wb_to_message(wb) for wb in last_5_weibos]
             for wb in formatted_weibos:
-                await session.send(wb)
-            session.finish(f"以上为 {alias} 的最新 {len(formatted_weibos)} 条微博")
-            return
-    session.finish(f"未找到微博: {alias}")
+                await bot.send(ev, wb)
+            await bot.finish(ev, f"以上为 {alias} 的最新 {len(formatted_weibos)} 条微博")
+    await bot.finish(ev, f"未找到微博: {alias}")
 
 @sv.scheduled_job('cron', minute='*/10', jitter=20)
 async def weibo_poller():
@@ -128,7 +125,7 @@ async def weibo_poller():
 
 @sv.scheduled_job('cron', second='0', minute='0', hour='5')
 async def clear_spider_buffer():
-    sv.logger.info("Clearing weibo spider buffer...")
+    sv.logger.info("Cleaning weibo spider buffer...")
     for sv_name, serviceObj in subr_dic.items():
         spiders = serviceObj["spiders"]
         for spider in spiders:

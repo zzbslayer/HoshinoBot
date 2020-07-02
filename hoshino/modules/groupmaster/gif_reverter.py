@@ -12,7 +12,8 @@ import math
 
 from PIL import Image, ImageSequence
 import PIL
-import requests
+from aiocqhttp.message import Message
+import httpx
 import io
 from hoshino import Service, R
 from hoshino.util import FreqLimiter
@@ -24,10 +25,14 @@ makedirs(BASE_DIR, exist_ok=True)
 
 sv = Service('gif-reverter', enable_on_default=False)
 
-async def reverse_image(base: str) -> str:
+async def get_image(url, **kwargs):
+    async with httpx.AsyncClient() as client:
+        r = await client.get(url, **kwargs)
+        return r
 
+async def reverse_image(base: str) -> str:
     # get base image
-    response = requests.get(base)
+    response = await get_image(base)
     im = Image.open(io.BytesIO(response.content))
 
     frames = [frame.copy() for frame in ImageSequence.Iterator(im)]
@@ -64,33 +69,24 @@ async def reverse_image(base: str) -> str:
     
     return img
 
-@sv.on_command('reverse', aliases=('倒放', '倒'), only_to_me=False)
-async def reverse(session: CommandSession):
+@sv.on_prefix(('reverse','倒放', '倒'))
+async def reverse(bot, ev):
+    msg_without_prefix = ev['message']
+    imglist = [ s.data['url'] 
+        for s in Message(msg_without_prefix)
+        if s.type == 'image' and 'url' in s.data
+    ]
 
-    # 从会话状态中获取图片
-    base = session.get('base', prompt='请向机器人发送gif。')
+    if 'gif' not in msg_without_prefix or len(imglist) == 0:
+        bot.finish(ev, '请发送 gif 图片')
 
-    uid = session.event.user_id
+    gif = imglist[0]
+    
+    uid = ev.user_id
     if not lmt.check(uid):
-        await session.finish(f'冷却中(剩余 {int(lmt.left_time(uid)) + 1}秒)')
-        return
+        await bot.finish(ev, f'冷却中(剩余 {int(lmt.left_time(uid)) + 1}秒)')
+    
     lmt.start_cd(uid, 120)
     # 向用户发送图
-    reverted = await reverse_image(base)
-    await session.finish(reverted.cqcode)
-
-@reverse.args_parser
-async def _(session: CommandSession):
-    arg = session.current_arg
-
-    if session.is_first_run:
-        # 该命令第一次运行arg
-        if 'CQ:image' in arg and 'gif' in arg:
-            session.state['base'] = session.current_arg_images[0]
-        return
-
-    if session.current_key == 'base':
-        if 'CQ:image' in arg and 'gif' in arg:
-            session.state['base'] = session.current_arg_images[0]
-        else:
-            session.finish('请发送gif。')
+    reverted = await reverse_image(gif)
+    await bot.finish(ev, reverted.cqcode)

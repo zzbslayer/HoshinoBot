@@ -12,6 +12,7 @@ from lxml import etree
 from hoshino import logger
 from .exception import *
 
+http_prefix = 'http'
 class WeiboSpider(object):
     def __init__(self, config):
         """Weibo类初始化"""
@@ -31,7 +32,7 @@ class WeiboSpider(object):
     
     async def get_json(self, params):
         """获取网页中json数据"""
-        url = 'https://m.weibo.cn/api/container/getIndex?'
+        url = f'{http_prefix}://m.weibo.cn/api/container/getIndex?'
         async with httpx.AsyncClient() as client:
             r = await client.get(url, params=params, timeout=10.0) # sometimes timeout
             return r.json()
@@ -128,7 +129,7 @@ class WeiboSpider(object):
         live_photo_list = []
         live_photo = weibo_info.get('pic_video')
         if live_photo:
-            prefix = 'https://video.weibo.com/media/play?livephoto=//us.sinaimg.cn/'
+            prefix = f'{http_prefix}://video.weibo.com/media/play?livephoto=//us.sinaimg.cn/'
             for i in live_photo.split(','):
                 if len(i.split(':')) == 2:
                     url = prefix + i.split(':')[1] + '.mov'
@@ -204,9 +205,9 @@ class WeiboSpider(object):
         '''
         Add the url of <a/> to the text of <a/>
         For example:
-            <a data-url="http://t.cn/A622uDbW" href="https://weibo.com/ttarticle/p/show?id=2309404507062473195617">
+            <a data-url="http://t.cn/A622uDbW" href="http_prefix://weibo.com/ttarticle/p/show?id=2309404507062473195617">
             <span class=\'url-icon\'>
-            <img style=\'width: 1rem;height: 1rem\' src=\'https://h5.sinaimg.cn/upload/2015/09/25/3/timeline_card_small_article_default.png\'></span>
+            <img style=\'width: 1rem;height: 1rem\' src=\'http_prefix://h5.sinaimg.cn/upload/2015/09/25/3/timeline_card_small_article_default.png\'></span>
             <span class="surl-text">本地化笔记第三期——剧情活动排期调整及版本更新内容前瞻</span>
             </a>
 
@@ -316,7 +317,7 @@ class WeiboSpider(object):
             logger.info(u'转发数：%d' % weibo['reposts_count'])
             logger.info(u'话题：%s' % weibo['topics'])
             logger.info(u'@用户：%s' % weibo['at_users'])
-            logger.info(u'url：https://m.weibo.cn/detail/%d' % weibo['id'])
+            logger.info(f'url：{http_prefix}://m.weibo.cn/detail/{weibo["id"]}')
         except OSError:
             pass
     
@@ -352,7 +353,7 @@ class WeiboSpider(object):
     async def get_long_weibo(self, id):
         """获取长微博"""
         for i in range(5):
-            url = 'https://m.weibo.cn/detail/%s' % id
+            url = f'{http_prefix}://m.weibo.cn/detail/{id}'
             async with httpx.AsyncClient() as client:
                 html = await client.get(url)
                 html = html.text
@@ -384,7 +385,7 @@ class WeiboSpider(object):
         logger.info(u'微博数：%d' % self.user['statuses_count'])
         logger.info(u'粉丝数：%d' % self.user['followers_count'])
         logger.info(u'关注数：%d' % self.user['follow_count'])
-        logger.info(u'url：https://m.weibo.cn/profile/%s' % self.user['id'])
+        logger.info(f'url：{http_prefix}://m.weibo.cn/profile/{self.user["id"]}')
         if self.user.get('verified_reason'):
             logger.info(self.user['verified_reason'])
         logger.info(self.user['description'])
@@ -451,7 +452,7 @@ class WeiboSpider(object):
 
                                 latest_weibos.append(wb)
                                 self.received_weibo_ids.append(wb["id"])
-                                self.print_weibo(wb)
+                                #self.print_weibo(wb)
                             
             return latest_weibos
         except Exception as e:

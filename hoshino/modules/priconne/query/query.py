@@ -1,5 +1,5 @@
 import itertools, re
-from hoshino import util, R, CommandSession
+from hoshino import util, R
 from hoshino.typing import CQEvent
 from nonebot import permission as perm
 from . import sv
@@ -100,19 +100,19 @@ async def yukari_sheet(bot, ev):
     await bot.send(ev, YUKARI_SHEET, at_sender=True)
 
 NORMAL_MAP_PREFIX='刷图'
-@sv.on_command('刷图', aliases=('刷图指南', '刷装备', '装备掉落', '刷图攻略'))
-async def normal_map(session:CommandSession):
+@sv.on_prefix(('刷图','刷图指南', '刷装备', '装备掉落', '刷图攻略'))
+async def normal_map(bot, ev):
     try:
-        number = int(session.current_arg_text)
+        number = int(ev.message.extract_plain_text().strip())
     except Exception as e:
-        await session.send('参数必须为数字。示例：`刷图 10`')
-        return
+        await bot.finish(ev, '参数必须为数字。示例：`刷图 10`')
+
     img = f'{NORMAL_MAP_PREFIX}-{number}.jpg'
     img = R.img(f'priconne/quick/{img}')
     if not img.exist:
-        await session.send(f'{number} 图刷图攻略未找到呜呜呜 ┭┮﹏┭┮')
+        await bot.finish(ev, f'{number} 图刷图攻略未找到呜呜呜 ┭┮﹏┭┮')
     else:
-        await session.send(f'{number} 图刷图攻略：{img.cqcode}')
+        await bot.finish(ev, f'{number} 图刷图攻略：{img.cqcode}')
 
 DRAGON_TOOL = f'''
 拼音对照表：{R.img('priconne/KyaruMiniGame/注音文字.jpg').cqcode}{R.img('priconne/KyaruMiniGame/接龙.jpg').cqcode}
