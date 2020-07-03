@@ -2,10 +2,12 @@ import re
 import time
 from collections import defaultdict
 
+from nonebot import CommandSession, MessageSegment, get_bot
+from hoshino.util import concat_pic, pic2b64, FreqLimiter
+from hoshino.service import Service
+from hoshino.typing import CQEvent
+from hoshino import R, priv as Priv
 import hoshino
-from hoshino import Service
-from hoshino.typing import *
-from hoshino.util import FreqLimiter, concat_pic, pic2b64
 
 from .. import chara
 
@@ -14,8 +16,9 @@ sv_help = '''
 [点赞] 接作业id 评价作业
 [点踩] 接作业id 评价作业
 '''.strip()
-sv = Service('pcr-arena', help_=sv_help, bundle='pcr查询')
+sv = Service('pcr-arena', manage_priv=Priv.SUPERUSER, enable_on_default=False, help_=sv_help, bundle='pcr查询')
 
+from ..chara import Chara
 from . import arena
 
 lmt = FreqLimiter(5)
@@ -123,16 +126,13 @@ async def _arena_query(bot, ev: CQEvent, region: int):
     await bot.send(ev, '\n'.join(msg))
     sv.logger.debug('Arena result sent!')
 
-
 @sv.on_prefix('点赞')
 async def arena_like(bot, ev):
     await _arena_feedback(bot, ev, 1)
 
-
 @sv.on_prefix('点踩')
 async def arena_dislike(bot, ev):
     await _arena_feedback(bot, ev, -1)
-
 
 rex_qkey = re.compile(r'^[0-9a-zA-Z]{5}$')
 async def _arena_feedback(bot, ev: CQEvent, action:int):
@@ -147,3 +147,4 @@ async def _arena_feedback(bot, ev: CQEvent, action:int):
     except KeyError:
         await bot.finish(ev, '无法找到作业id！您只能评价您最近查询过的作业', at_sender=True)
     await bot.send(ev, '感谢您的反馈！', at_sender=True)
+    await bot.send(ev, R.record('谢谢.m4a').cqcode)

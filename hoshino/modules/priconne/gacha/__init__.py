@@ -27,6 +27,10 @@ sv = Service('gacha', help_=sv_help, bundle='pcr娱乐')
 jewel_limit = DailyNumberLimiter(6000000)
 tenjo_limit = DailyNumberLimiter(6000000)
 
+gacha10_bgm_limit = DailyNumberLimiter(1)
+tenjo_bgm_limit = DailyNumberLimiter(1)
+
+
 JEWEL_EXCEED_NOTICE = f'您今天已经抽过{jewel_limit.max}钻了，欢迎明早5点后再来！'
 TENJO_EXCEED_NOTICE = f'您今天已经抽过{tenjo_limit.max}张天井券了，欢迎明早5点后再来！'
 POOL = ('MIX', 'JP', 'TW', 'BL')
@@ -69,7 +73,10 @@ async def congratulation_records(bot, ev:CQEvent):
 async def comfort_records(bot, ev:CQEvent):
     records = ['不管什么惩罚都可以.m4a', '主人大人对不起呜呜呜.m4a', '对不起主人大人.m4a', '我真是个笨蛋.m4a']
     num = random.randint(0, len(records)-1)
-    await bot.send(ev, R.record(records[num]))
+    await bot.send(ev, R.record(records[num]).cqcode)
+
+async def gacha_bgm(bot, ev:CQEvent):
+    await bot.send(ev, R.record('gacha.m4a').cqcode)
 
 @sv.on_fullmatch(('卡池资讯', '查看卡池', '看看卡池', '康康卡池', '卡池資訊', '看看up', '看看UP'))
 async def gacha_info(bot, ev: CQEvent):
@@ -145,8 +152,11 @@ async def gacha_1(bot, ev: CQEvent):
 @sv.on_prefix(gacha_10_aliases, only_to_me=False)
 async def gacha_10(bot, ev: CQEvent):
     SUPER_LUCKY_LINE = 170
-
+    
     await check_jewel_num(bot, ev)
+    if gacha10_bgm_limit.check(ev.user_id):
+        await gacha_bgm(bot, ev)
+    gacha10_bgm_limit.increase(ev.user_id, 1)
     jewel_limit.increase(ev.user_id, 1500)
 
     gid = str(ev.group_id)
@@ -182,6 +192,9 @@ async def gacha_10(bot, ev: CQEvent):
 async def gacha_300(bot, ev: CQEvent):
 
     await check_tenjo_num(bot, ev)
+    if tenjo_bgm_limit.check(ev.user_id):
+        await gacha_bgm(bot, ev)
+    tenjo_bgm_limit.increase(ev.user_id, 1)
     tenjo_limit.increase(ev.user_id)
 
     gid = str(ev.group_id)

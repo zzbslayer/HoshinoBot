@@ -136,27 +136,26 @@ async def public_recruit(bot, ev):
     tags = args.split()
     size = len(tags)
     if size == 0:
-        await session.finish(HELP_MESSAGE)
-        return
+        await bot.finish(ev, HELP_MESSAGE)
 
     for i in range(size):
         if tags[i][-2:] == "干员":
             tags[i] = tags[i][:-2]
     valid, _tag = validate_tags(tags)
     if not valid:
-        await session.finish(f'无效 TAG：{_tag}')
-        return
+        await bot.finish(ev, f'无效 TAG：{_tag}')
+
     workers = get_workers(tags, worker_infos, over4_only)
     if len(workers) == 0:
         if over4_only:
-            await session.finish(f'无法保证招聘四星及以上干员\n若希望显示所有可能干员请使用命令：公开招募 -a {args}')
+            await bot.finish(ev, f'无法保证招聘四星及以上干员\n若希望显示所有可能干员请使用命令：公开招募 -a {args}')
         else:
-            await session.finish('无匹配干员')
+            await bot.finish(ev, '无匹配干员')
     else:
         msg = format_workers(workers)
-        await session.finish(msg)
+        await bot.finish(ev, msg)
 
-@sv.on_command('ark-tags', aliases=('公招TAG', '公招tag'), only_to_me=False)
-async def tags(session):
+@sv.on_fullmatch(('ark-tags', '公招TAG', '公招tag'))
+async def tags(bot, ev):
     msg = f'公开招募TAG一览：\n{all_tags}'
-    await session.finish(msg)
+    await bot.finish(ev, msg)

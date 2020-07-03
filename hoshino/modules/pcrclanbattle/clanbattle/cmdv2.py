@@ -23,7 +23,7 @@ from aiocqhttp.exceptions import ActionFailed
 from nonebot import NoneBot
 from nonebot import MessageSegment as ms
 from nonebot.typing import Context_T
-from hoshino import util, priv
+from hoshino import util, priv, R
 
 from . import sv, cb_cmd
 from .argparse import ArgParser, ArgHolder, ParseResult
@@ -572,6 +572,7 @@ async def add_sos(bot:NoneBot, ctx:Context_T, args:ParseResult):
     msg = [ "\n您已上树，本Boss被击败时将会通知您",
            f"目前{clan['name']}挂树人数为{len(tree)}人：" ]
     msg.extend(_gen_namelist_text(bm, tree))
+    msg.append(R.img('priconne/挂树.jpg').cqcode)
     await bot.send(ctx, '\n'.join(msg), at_sender=True)
 
 

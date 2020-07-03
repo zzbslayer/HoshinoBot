@@ -98,7 +98,7 @@ async def chat_neigui(bot, ev):
 
 _africa = ['非酋', '非洲', '脸黑', '非洲人']
 africa_pos = 0.05
-african = ['非洲人.png','非洲人2.png']
+african = ['非洲人.png','非洲人2.png', '非洲人3.png']
 africa_poses = possibilities(africa_pos, len(african))
 @sv.on_keyword(tuple(_africa))
 async def africa(bot, ev):
