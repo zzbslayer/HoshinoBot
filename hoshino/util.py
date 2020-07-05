@@ -48,9 +48,11 @@ async def delete_msg(ev: CQEvent):
         hoshino.logger.exception(e)
 
 
-async def silence(ev: CQEvent, ban_time, skip_su=True):
+async def silence(ev: CQEvent, ban_time, skip_su=True, skip_bonus=False):
     try:
         if skip_su and ev.user_id in hoshino.config.SUPERUSERS:
+            return
+        if skip_bonus and ev.user_id in hoshino.config.BONUS_USERS:
             return
         await hoshino.get_bot().set_group_ban(self_id=ev.self_id, group_id=ev.group_id, user_id=ev.user_id, duration=ban_time)
     except ActionFailed as e:

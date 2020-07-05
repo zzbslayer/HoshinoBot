@@ -27,9 +27,9 @@ sv = Service('gacha', help_=sv_help, bundle='pcr娱乐')
 jewel_limit = DailyNumberLimiter(6000000)
 tenjo_limit = DailyNumberLimiter(6000000)
 
-gacha10_bgm_limit = DailyNumberLimiter(1)
-tenjo_bgm_limit = DailyNumberLimiter(1)
-
+gacha10_bgm_limit = DailyNumberLimiter(5)
+tenjo_bgm_limit = DailyNumberLimiter(5)
+user_bgm_limit = DailyNumberLimiter(1)
 
 JEWEL_EXCEED_NOTICE = f'您今天已经抽过{jewel_limit.max}钻了，欢迎明早5点后再来！'
 TENJO_EXCEED_NOTICE = f'您今天已经抽过{tenjo_limit.max}张天井券了，欢迎明早5点后再来！'
@@ -145,7 +145,7 @@ async def gacha_1(bot, ev: CQEvent):
         if bot.config.USE_CQPRO:
             await congratulation_records(bot, ev)
             
-        await silence(ev, 60)
+        await silence(ev, 60, skip_bonus=True)
     await bot.send(ev, f'素敵な仲間が増えますよ！\n{res}', at_sender=True)
 
 
@@ -154,9 +154,12 @@ async def gacha_10(bot, ev: CQEvent):
     SUPER_LUCKY_LINE = 170
     
     await check_jewel_num(bot, ev)
-    if gacha10_bgm_limit.check(ev.user_id):
+    
+    if gacha10_bgm_limit.check(0) and user_bgm_limit.check(ev.user_id):
+        gacha10_bgm_limit.increase(0, 1)
+        user_bgm_limit.increase(ev.user_id, 1)
         await gacha_bgm(bot, ev)
-    gacha10_bgm_limit.increase(ev.user_id, 1)
+
     jewel_limit.increase(ev.user_id, 1500)
 
     gid = str(ev.group_id)
@@ -192,9 +195,13 @@ async def gacha_10(bot, ev: CQEvent):
 async def gacha_300(bot, ev: CQEvent):
 
     await check_tenjo_num(bot, ev)
-    if tenjo_bgm_limit.check(ev.user_id):
+
+    if tenjo_bgm_limit.check(0) and user_bgm_limit.check(ev.user_id):
+        tenjo_bgm_limit.increase(0, 1)
+        user_bgm_limit.increase(ev.user_id, 1)
         await gacha_bgm(bot, ev)
-    tenjo_bgm_limit.increase(ev.user_id, 1)
+        
+
     tenjo_limit.increase(ev.user_id)
 
     gid = str(ev.group_id)
@@ -263,7 +270,7 @@ async def gacha_300(bot, ev: CQEvent):
     await bot.send(ev, '\n'.join(msg), at_sender=True)
     silence_time = ((100*up + 50*(up+s3)) / 3) * 1 #+ 10*s2 + s1) * 1
     if silence_time >= 5 * 60:
-        await silence(ev, 5 * 60)
+        await silence(ev, 5 * 60, skip_bonus=True)
 
 
 @sv.on_prefix('氪金')

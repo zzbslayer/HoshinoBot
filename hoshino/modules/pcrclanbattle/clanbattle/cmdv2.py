@@ -234,6 +234,14 @@ async def process_challenge(bot:NoneBot, ctx:Context_T, ch:ParseResult):
     await auto_unlock_boss(bot, ctx, bm)
     await auto_unsubscribe(bot, ctx, bm.group, mem['uid'], boss)
 
+def isDD(damage):
+    return damage < 450000
+
+import random
+async def jiuzhe(bot, ctx):
+    msglist = ['恁搁着挠痒痒呢？{ms.face(32)}', f'就这？{ms.face(32)}', R.img('就这.jpg').cqcode]
+    index = random.randint(0, len(msglist)-1)
+    await bot.send(ctx, msglist[index])
 
 @cb_cmd(('出刀', '报刀'), ArgParser(usage='!出刀 <伤害值> (@qq)', arg_dict={
     '': ArgHolder(tip='伤害值', type=damage_int),
@@ -250,6 +258,11 @@ async def add_challenge(bot:NoneBot, ctx:Context_T, args:ParseResult):
         'flag': BattleMaster.NORM
     })
     await process_challenge(bot, ctx, challenge)
+
+    damage = args.get('')
+    if isDD(damage):
+        await jiuzhe(bot, ctx)
+        
 
 
 @cb_cmd(('出尾刀', '收尾', '尾刀'), ArgParser(usage='!出尾刀 (<伤害值>) (@<qq号>)', arg_dict={
@@ -846,22 +859,30 @@ async def post(url, **kwargs):
 
 RANK_API_NAME = "https://service-kjcbcnmw-1254119946.gz.apigw.tencentcs.com/name/0"
 RANK_API_LEADER = "https://service-kjcbcnmw-1254119946.gz.apigw.tencentcs.com/leader/0"
+RANK_API_RANK = "https://service-kjcbcnmw-1254119946.gz.apigw.tencentcs.com/rank"
 @cb_cmd('排名', ArgParser(
-    usage='！排名 C<公会名> L<会长名> 默认查询本群公会。两参数不兼容。',
+    usage='！排名 C<公会名> L<会长名> R<排名> 默认查询本群公会。各参数不兼容。',
     arg_dict={
         'C':ArgHolder(tip='公会名', type=str, default=''),
-        'L':ArgHolder(tip='会长名', type=str, default='')}))
+        'L':ArgHolder(tip='会长名', type=str, default=''),
+        'R':ArgHolder(tip='会长名', type=str, default='')}))
 async def clan_rank(bot:NoneBot, ctx:Context_T, args:ParseResult):
     clan_name = args.get('C')
     leader = args.get('L')
-    url = RANK_API_NAME
-    if clan_name == '' and leader == '':
+    rank = args.get('R')
+    
+    # default
+    if clan_name == '' and leader == '' and rank == '':
         bm = BattleMaster(ctx['group_id'])
         clan = _check_clan(bm)
         clan_name = clan['name']
-    elif clan_name == '' and leader != '':
+        url = RANK_API_NAME
+    elif clan_name != '':
+        url = RANK_API_NAME
+    elif leader != '':
         url = RANK_API_LEADER
-
+    elif rank != '':
+        url = f'{RANK_API_RANK}/{rank}'
     body = json.dumps({'clanName':clan_name, 'leaderName': leader})
     headers = {
         "Sec-Fetch-Site":"cross-site",
